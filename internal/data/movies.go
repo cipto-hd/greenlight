@@ -110,10 +110,11 @@ func (m MovieModel) Update(movie *Movie) error {
 	// number.
 	query := `
 		UPDATE movies
-		SET title = $1, year = $2, runtime = $3, genres = $4, version = version + 1
+		SET title = $1, year = $2, runtime = $3, genres = $4, updated_at=NOW(), version = version + 1
 		WHERE id = $5
 		RETURNING version
 	`
+
 	// Create an args slice containing the values for the placeholder parameters.
 	args := []interface{}{
 		movie.Title,
