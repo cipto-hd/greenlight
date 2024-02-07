@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/cipto-hd/greenlight/internal/data"
+	"github.com/cipto-hd/greenlight/internal/validator"
 )
 
 // Add a createMovieHandler for the "POST /v1/movies" endpoint. For now we simply
@@ -29,6 +30,23 @@ func (app *application) createMovieHandler(w http.ResponseWriter, r *http.Reques
 		app.badRequestResponse(w, r, err)
 		return
 	}
+
+	// Copy the values from the input struct to a new Movie struct.
+	movie := &data.Movie{
+		Title:   input.Title,
+		Year:    input.Year,
+		Runtime: input.Runtime,
+		Genres:  input.Genres,
+	}
+
+	// Initialize a new Validator instance.
+	v := validator.New()
+
+	if data.ValidateMovie(v, movie); !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	// Dump the contents of the input struct in a HTTP response.
 	fmt.Fprintf(w, "%+v\n", input)
 }
