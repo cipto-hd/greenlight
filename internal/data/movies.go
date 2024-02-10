@@ -209,6 +209,7 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 		WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
 		AND (genres @> $2 OR $2 = '{}')
 		ORDER BY %s %s, id ASC
+		LIMIT $3 OFFSET $4
 		`,
 		filters.sortColumn(),
 		filters.sortDirection())
@@ -217,8 +218,14 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
+	// As our SQL query now has quite a few placeholder parameters, let's collect the
+	// values for the placeholders in a slice. Notice here how we call the limit() and
+	// offset() methods on the Filters struct to get the appropriate values for the
+	// LIMIT and OFFSET clauses.
+	args := []interface{}{title, pq.Array(genres), filters.limit(), filters.offset()}
+
 	// Pass the title and genres as the placeholder parameter values.
-	rows, err := m.DB.QueryContext(ctx, query, title, pq.Array(genres))
+	rows, err := m.DB.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
