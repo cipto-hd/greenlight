@@ -11,6 +11,7 @@ import (
 
 	"github.com/cipto-hd/greenlight/internal/data"
 	"github.com/cipto-hd/greenlight/internal/jsonlog"
+	"github.com/cipto-hd/greenlight/internal/mailer"
 )
 
 // Declare a string containing the application version number. Later in the book we'll
@@ -32,6 +33,13 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  string
 	}
+	smtp struct {
+		host     string
+		port     int
+		username string
+		password string
+		sender   string
+	}
 }
 
 // Define an application struct to hold the dependencies for our HTTP handlers, helpers,
@@ -41,6 +49,7 @@ type application struct {
 	config config
 	logger *jsonlog.Logger
 	models data.Models
+	mailer mailer.Mailer
 }
 
 func main() {
@@ -58,6 +67,13 @@ func main() {
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
+
+	// default smtp server is mailhog
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "127.0.0.1", "smtp host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 1025, "smtp port")
+	flag.StringVar(&cfg.smtp.username, "smtp-user", "null", "smtp user")
+	flag.StringVar(&cfg.smtp.password, "smtp-pass", "null", "smtp password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.alexedwards.net>", "SMTP sender")
 
 	flag.Parse()
 
@@ -82,6 +98,7 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
 
 	err = app.serve(cfg, logger)
