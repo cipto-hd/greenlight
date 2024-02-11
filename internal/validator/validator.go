@@ -2,7 +2,7 @@ package validator
 
 import "regexp"
 
-var EmailRX = regexp.MustCompile("^[\\w!#\\$%&'\\*\\+\\/\\=\\?\\^`\\{\\|\\}~\\-]+(:?\\.[\\w!#\\$%&'\\*\\+\\/\\=\\?\\^`\\{\\|\\}~\\-]+)*@(?:[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?$")
+var EmailRX = regexp.MustCompile("^[\\w!#\\$%&'\\*\\+\\/\\=\\?\\^`\\{\\|\\}~\\-]+(:?\\.[\\w!#\\$%&'\\*\\+\\/\\=\\?\\^`\\{\\|\\}~\\-]+)*@(?:[a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?){2,}\\.([a-z0-9](?:[a-z0-9\\-]*[a-z0-9])?){2,}$")
 
 // Define a new Validator type which contains a map of validation errors.
 type Validator struct {
