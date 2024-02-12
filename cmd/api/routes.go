@@ -6,6 +6,12 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
+type MethodPathHandlerFunc struct {
+	Method      string
+	Path        string
+	HandlerFunc http.HandlerFunc
+}
+
 // Update the routes() method to return a http.Handler instead of a *httprouter.Router.
 func (app *application) routes() http.Handler {
 	// Initialize a new httprouter router instance.
@@ -24,15 +30,44 @@ func (app *application) routes() http.Handler {
 	// http.MethodPost are constants which equate to the strings "GET" and "POST"
 	// respectively.
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/movies", app.listMoviesHandler)
-	router.HandlerFunc(http.MethodPost, "/v1/movies", app.createMovieHandler)
-	router.HandlerFunc(http.MethodGet, "/v1/movies/:id", app.showMovieHandler)
-	router.HandlerFunc(http.MethodPatch, "/v1/movies/:id", app.updateMovieHandler)
-	router.HandlerFunc(http.MethodDelete, "/v1/movies/:id", app.deleteMovieHandler)
 
+	// handler func for  /v1/users** endpoints
+	// Use the requireActivatedUser() middleware on our five /v1/movies** endpoints.
+	for _, v := range []MethodPathHandlerFunc{
+		{
+			Method:      http.MethodGet,
+			Path:        "/v1/movies",
+			HandlerFunc: app.listMoviesHandler,
+		},
+		{
+			Method:      http.MethodPost,
+			Path:        "/v1/movies",
+			HandlerFunc: app.createMovieHandler,
+		},
+		{
+			Method:      http.MethodGet,
+			Path:        "/v1/movies/:id",
+			HandlerFunc: app.showMovieHandler,
+		},
+		{
+			Method:      http.MethodPatch,
+			Path:        "/v1/movies/:id",
+			HandlerFunc: app.updateMovieHandler,
+		},
+		{
+			Method:      http.MethodDelete,
+			Path:        "/v1/movies/:id",
+			HandlerFunc: app.deleteMovieHandler,
+		},
+	} {
+		router.Handler(v.Method, v.Path, app.requireActivatedUser(v.HandlerFunc))
+	}
+
+	// handler func for  /v1/users** endpoints
 	router.HandlerFunc(http.MethodPost, "/v1/users", app.registerUserHandler)
 	router.HandlerFunc(http.MethodPut, "/v1/users/activated", app.activateUserHandler)
 
+	// handler func for  /v1/tokens** endpoints
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
 
 	// Return the httprouter instance.
