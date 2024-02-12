@@ -35,6 +35,14 @@ type config struct {
 		maxIdleConns int
 		maxIdleTime  string
 	}
+	// Add a new limiter struct containing fields for the requests-per-second and burst
+	// values, and a boolean field which we can use to enable/disable rate limiting
+	// altogether.
+	limiter struct {
+		rps     float64
+		burst   int
+		enabled bool
+	}
 	smtp struct {
 		host     string
 		port     int
@@ -81,6 +89,12 @@ func main() {
 	flag.StringVar(&cfg.smtp.username, "smtp-user", "null", "smtp user")
 	flag.StringVar(&cfg.smtp.password, "smtp-pass", "null", "smtp password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.alexedwards.net>", "SMTP sender")
+
+	// Create command line flags to read the setting values into the config struct.
+	// Notice that we use true as the default for the 'enabled' setting?
+	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
+	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
+	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
 	// Use the flag.Func() function to process the -cors-trusted-origins command line
 	// flag. In this we use the strings.Fields() function to split the flag value into a
