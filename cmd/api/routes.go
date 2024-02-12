@@ -29,7 +29,7 @@ func (app *application) routes() http.Handler {
 	// endpoints using the HandlerFunc() method. Note that http.MethodGet and
 	// http.MethodPost are constants which equate to the strings "GET" and "POST"
 	// respectively.
-	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.requireActivatedUser(app.healthcheckHandler))
+	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 
 	// handler func for  /v1/users** endpoints
 	// Use the requirePermission("movie:read",v.HandlerFunc)) middleware
@@ -79,5 +79,6 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/authentication", app.createAuthenticationTokenHandler)
 
 	// Return the httprouter instance.
-	return app.recoverPanic(app.rateLimit(app.authenticate(router)))
+	// middleware executed from left to right
+	return app.recoverPanic(app.enableCORS(app.rateLimit(app.authenticate(router))))
 }
