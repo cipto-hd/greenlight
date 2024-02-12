@@ -29,10 +29,11 @@ func (app *application) routes() http.Handler {
 	// endpoints using the HandlerFunc() method. Note that http.MethodGet and
 	// http.MethodPost are constants which equate to the strings "GET" and "POST"
 	// respectively.
-	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
+	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.requireActivatedUser(app.healthcheckHandler))
 
 	// handler func for  /v1/users** endpoints
-	// Use the requireActivatedUser() middleware on our five /v1/movies** endpoints.
+	// Use the requirePermission("movie:read",v.HandlerFunc)) middleware
+	// on our two /v1/movies** GET endpoints.
 	for _, v := range []MethodPathHandlerFunc{
 		{
 			Method:      http.MethodGet,
@@ -40,14 +41,21 @@ func (app *application) routes() http.Handler {
 			HandlerFunc: app.listMoviesHandler,
 		},
 		{
-			Method:      http.MethodPost,
-			Path:        "/v1/movies",
-			HandlerFunc: app.createMovieHandler,
-		},
-		{
 			Method:      http.MethodGet,
 			Path:        "/v1/movies/:id",
 			HandlerFunc: app.showMovieHandler,
+		},
+	} {
+		router.Handler(v.Method, v.Path, app.requirePermission("movies:read", v.HandlerFunc))
+	}
+
+	// Use the requirePermission("movie:read",v.HandlerFunc)) middleware
+	// on our two /v1/movies** POST/PATCH/DELETE endpoints.
+	for _, v := range []MethodPathHandlerFunc{
+		{
+			Method:      http.MethodPost,
+			Path:        "/v1/movies",
+			HandlerFunc: app.createMovieHandler,
 		},
 		{
 			Method:      http.MethodPatch,
@@ -60,7 +68,7 @@ func (app *application) routes() http.Handler {
 			HandlerFunc: app.deleteMovieHandler,
 		},
 	} {
-		router.Handler(v.Method, v.Path, app.requireActivatedUser(v.HandlerFunc))
+		router.Handler(v.Method, v.Path, app.requirePermission("movies:write", v.HandlerFunc))
 	}
 
 	// handler func for  /v1/users** endpoints
