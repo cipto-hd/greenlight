@@ -11,7 +11,7 @@ cmd = "go build -o ./tmp/main ./cmd/api"
 # Binary file yields from `cmd`.
 bin = "./tmp/main"
 # Customize binary.
-full_bin = "GREENLIGHT_DB_DSN=postgres://greenlight:pa55word@localhost/greenlight?sslmode=disable ./tmp/main -port=4000 -env=development"
+full_bin = "export $(grep -v '^#' .env | xargs); ./tmp/main -port=4000 -env=development"
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html", "gohtml"]
 # Ignore these filename extensions or directories.

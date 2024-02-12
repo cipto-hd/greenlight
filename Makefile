@@ -1,4 +1,5 @@
-GREENLIGHT_DB_DSN=postgres://greenlight:pa55word@localhost/greenlight?sslmode=disable
+# Include variables from the .envrc file
+include .env
 
 ## help: print this help message
 .PHONY: help
@@ -14,7 +15,7 @@ confirm:
 ## run/api: run the cmd/api application
 .PHONY: run/api
 run/api:
-	GREENLIGHT_DB_DSN=${GREENLIGHT_DB_DSN} go run ./cmd/api
+	@go run ./cmd/api -db-dsn=${GREENLIGHT_DB_DSN}
 
 ## db/psql: connect to the database using psql
 .PHONY: db/sql
