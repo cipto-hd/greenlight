@@ -115,7 +115,13 @@ func main() {
 	})
 
 	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	if cfg.db.dsn == "" {
+		fmt.Printf("You must set command line flag \"-db-dsn\" or env var GREENLIGHT_DB_DSN%s", "\n\n")
+	}
+
 	if *displayVersion {
 		fmt.Printf("Version:\t%s\n", version)
 		// Print out the contents of the buildTime variable.
