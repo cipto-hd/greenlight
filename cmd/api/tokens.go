@@ -53,6 +53,15 @@ func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, 
 		app.invalidCredentialsResponse(w, r)
 		return
 	}
+
+	// If everything went successfully, then we delete all old authentication tokens for the
+	// user.
+	err = app.models.Tokens.DeleteAllForUser(data.ScopeAuthentication, user.ID)
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	// Otherwise, if the password is correct, we generate a new token with a 24-hour
 	// expiry time and the scope 'authentication'.
 	token, err := app.models.Tokens.New(user.ID, 24*time.Hour, data.ScopeAuthentication)
