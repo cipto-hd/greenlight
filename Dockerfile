@@ -4,7 +4,7 @@ WORKDIR /app
 RUN apk add --no-cache git
 COPY . .
 RUN chmod +x /app/remote/build.sh
-RUN sh -c /app/remote/build.sh
+RUN sh -c "/app/remote/build.sh"
 
 #final stage
 FROM postgres:15.0-alpine3.16

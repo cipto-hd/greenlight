@@ -1,8 +1,9 @@
 package main
 
 import (
-	"expvar"
+	_ "expvar"
 	"net/http"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -83,7 +84,16 @@ func (app *application) routes() http.Handler {
 	router.HandlerFunc(http.MethodPost, "/v1/tokens/password-reset", app.createPasswordResetTokenHandler)
 
 	// Register a new GET /debug/vars endpoint pointing to the expvar handler.
-	router.Handler(http.MethodGet, "/debug/vars", expvar.Handler())
+	router.HandlerFunc(http.MethodGet, "/debug/vars", func(w http.ResponseWriter, r *http.Request) {
+		if !strings.Contains(r.Host, "localhost") && !strings.Contains(r.Host, "127.0.0.1") {
+			app.logger.PrintInfo(r.Host, nil)
+			app.notFoundResponse(w, r)
+			return
+		}
+		if h, p := http.DefaultServeMux.Handler(r); p != "" {
+			h.ServeHTTP(w, r)
+		}
+	})
 
 	// Return the httprouter instance.
 	// middleware executed from left to right
