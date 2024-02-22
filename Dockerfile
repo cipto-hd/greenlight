@@ -1,13 +1,15 @@
 #build stage
 FROM golang:1.21-alpine3.19 AS builder
 WORKDIR /app
+RUN apk add --no-cache git
 COPY . .
-RUN go build -o /app/api -v ./cmd/api
+RUN chmod +x /app/remote/build.sh
+RUN sh -c /app/remote/build.sh
 
 #final stage
 FROM postgres:15.0-alpine3.16
 WORKDIR /app
-RUN apk --no-cache add ca-certificates
+RUN apk add --no-cache ca-certificates
 RUN apk add --no-cache procps
 COPY --from=builder /app/api /app/api
 RUN chmod +x /app/api

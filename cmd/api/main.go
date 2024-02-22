@@ -17,6 +17,7 @@ import (
 	"github.com/cipto-hd/greenlight/internal/data"
 	"github.com/cipto-hd/greenlight/internal/jsonlog"
 	"github.com/cipto-hd/greenlight/internal/mailer"
+	"github.com/cipto-hd/greenlight/internal/vcs"
 )
 
 var (
@@ -114,8 +115,17 @@ func main() {
 
 	flag.Parse()
 
-	if cfg.db.dsn == "" {
+	if cfg.db.dsn == "" && !*displayVersion {
 		fmt.Printf("You must set command line flag \"-db-dsn\" or env var GREENLIGHT_DB_DSN%s", "\n\n")
+	}
+
+	/*
+				set app-version based on git description
+		    - on build, the version is set via linker_flags
+		    - on dev, the version is set via exec.Command
+	*/
+	if cfg.env == "development" {
+		version = vcs.Version()
 	}
 
 	if *displayVersion {

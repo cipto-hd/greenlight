@@ -8,6 +8,7 @@ import (
 // application status, operating environment and version.
 func (app *application) healthcheckHandler(w http.ResponseWriter, r *http.Request) {
 	// Create a map which holds the information that we want to send in the response.
+
 	data := envelope{
 		"status": "available",
 		"system_info": map[string]string{
