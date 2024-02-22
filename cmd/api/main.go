@@ -91,7 +91,7 @@ func main() {
 	flag.IntVar(&cfg.smtp.port, "smtp-port", 1025, "smtp port")
 	flag.StringVar(&cfg.smtp.username, "smtp-user", "null", "smtp user")
 	flag.StringVar(&cfg.smtp.password, "smtp-pass", "null", "smtp password")
-	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.alexedwards.net>", "SMTP sender")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.test>", "SMTP sender")
 
 	// Create command line flags to read the setting values into the config struct.
 	// Notice that we use true as the default for the 'enabled' setting?

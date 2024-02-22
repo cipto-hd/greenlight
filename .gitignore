@@ -25,3 +25,4 @@ api
 .env
 bin/*
 run 
+remote/migrate
