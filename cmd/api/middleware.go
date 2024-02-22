@@ -188,6 +188,11 @@ func (app *application) requireAuthenticatedUser(next http.HandlerFunc) http.Han
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		user := app.contextGetUser(r)
 		if user.IsAnonymous() {
+			// disguise /debug/vars route as not-found
+			if app.isDebugVarsRutesThenNotFound(w, r) {
+				return
+			}
+
 			app.authenticationRequiredResponse(w, r)
 			return
 		}
@@ -202,6 +207,10 @@ func (app *application) requireActivatedUser(next http.HandlerFunc) http.Handler
 		user := app.contextGetUser(r)
 		// Check that a user is activated.
 		if !user.Activated {
+			// disguise /debug/vars route as not-found
+			if app.isDebugVarsRutesThenNotFound(w, r) {
+				return
+			}
 			app.inactiveAccountResponse(w, r)
 			return
 		}
@@ -226,6 +235,11 @@ func (app *application) requirePermission(code string, next http.HandlerFunc) ht
 		// Check if the slice includes the required permission. If it doesn't, then
 		// return a 403 Forbidden response.
 		if !permissions.Include(code) {
+			// disguise /debug/vars route as not-found
+			if app.isDebugVarsRutesThenNotFound(w, r) {
+				return
+			}
+
 			app.notPermittedResponse(w, r)
 			return
 		}

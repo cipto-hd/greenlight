@@ -210,3 +210,14 @@ func (app *application) background(fn func()) {
 		fn()
 	}()
 }
+
+func (app *application) isDebugVarsRutesThenNotFound(w http.ResponseWriter, r *http.Request) bool {
+	// disguise /debug/vars route as not-found
+	if r.URL.Path == "/debug/vars" {
+		app.notFoundResponse(w, r)
+		return true
+	}
+
+	return false
+
+}
