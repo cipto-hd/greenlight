@@ -19,6 +19,8 @@ COPY ./remote/01-init.sh /docker-entrypoint-initdb.d/
 
 ENV POSTGRES_USER="postgres"
 ENV POSTGRES_PASSWORD="password"
+ENV PGUSER=$POSTGRES_USER;
+ENV PGPASSWORD=$POSTGRES_PASSWORD;
 ENV APP_DB_USER="greenlight"
 ENV APP_DB_PASS="greenlight"
 ENV APP_DB_NAME="greenlight"
