@@ -14,10 +14,10 @@ import (
 
 	_ "github.com/lib/pq"
 
+	greenlight "github.com/cipto-hd/greenlight/cmd"
 	"github.com/cipto-hd/greenlight/internal/data"
 	"github.com/cipto-hd/greenlight/internal/jsonlog"
 	"github.com/cipto-hd/greenlight/internal/mailer"
-	"github.com/cipto-hd/greenlight/internal/vcs"
 )
 
 var (
@@ -120,13 +120,11 @@ func main() {
 	}
 
 	/*
-				set app-version based on git description
-		    - on build, the version is set via linker_flags
-		    - on dev, the version is set via exec.Command
+		set app-version based on git description
+		- linker_flags on build is not reliable, target system must have git installed
+		- now both on build and dev, version is generated using go:generate
 	*/
-	if cfg.env == "development" {
-		version = vcs.Version()
-	}
+	version = greenlight.Version
 
 	if *displayVersion {
 		fmt.Printf("Version:\t%s\n", version)

@@ -1,10 +1,10 @@
 #!/bin/sh
 set -e
 
+go generate ./...
 current_time=$(date -I'seconds');
-git_description=$(git describe --always --dirty --tags --long);
-# linker_flags="-s -X main.buildTime=$current_time -X main.version=$git_description";
+# linker_flags="-s -X main.buildTime=$current_time";
 go build \
-  -ldflags="-s -X main.buildTime=$current_time -X main.version=$git_description" \
+  -ldflags="-s -X main.buildTime=$current_time" \
   -o=/app/api \
   ./cmd/api;
